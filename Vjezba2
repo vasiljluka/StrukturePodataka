@@ -1,1 +1,151 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct _Person* Position;
+
+typedef struct _Person {
+    char ime[50];
+    char prezime[50];
+    int god;
+    Position next;
+} Person;
+
+int insertAfter(Position p, Position newP) {
+    if (p == NULL || newP == NULL)
+        return -1;
+
+    newP->next = p->next;
+    p->next = newP;
+
+    return 0;
+}
+
+int insertBegin(char* name, char* lastN, int year, Position p) {
+    Position newPerson = NULL;
+
+    newPerson = (Position)malloc(sizeof(Person));
+
+    if (newPerson == NULL)
+        return -1;
+
+    strcpy(newPerson->ime, name);
+    strcpy(newPerson->prezime, lastN);
+    newPerson->god = year;
+
+    insertAfter(p, newPerson);
+
+    return 0;
+}
+
+void printList(Position p) {
+    Position q = p->next;
+
+    while (q != NULL) {
+        printf("%s %s, %d\n", q->ime, q->prezime, q->god);
+        q = q->next;
+    }
+}
+
+int insertEnd(char* name, char* lastN, int year, Position p) {
+    Position newPerson = NULL;
+
+    newPerson = (Position)malloc(sizeof(Person));
+
+    if (newPerson == NULL)
+        return -1;
+
+    strcpy(newPerson->ime, name);
+    strcpy(newPerson->prezime, lastN);
+    newPerson->god = year;
+    newPerson->next = NULL;
+
+    while (p->next != NULL) {
+        p = p->next;
+    }
+
+    insertAfter(p, newPerson);
+
+    return 0;
+}
+
+Position findlName(char* lastN, Position p) {
+    Position q = p->next;
+
+    while (q != NULL) {
+        if (strcmp(q->prezime, lastN) == 0) {
+            return q;
+        }
+
+        q = q->next;
+    }
+
+    return NULL;
+}
+
+int deletePerson(char* lastN, Position p) {
+    Position prev = p;
+    Position curr = p->next;
+
+    while (curr != NULL) {
+        if (strcmp(curr->prezime, lastN) == 0) {
+            prev->next = curr->next;
+            free(curr);
+            return 0;
+        }
+
+        prev = curr;
+        curr = curr->next;
+    }
+
+    return -1;
+}
+
+int main() {
+    Person Head = {
+        .ime = "",
+        .prezime = "",
+        .god = 0,
+        .next = NULL
+    };
+
+    Position p = &Head;
+    Position pronadena = NULL;
+
+    insertBegin("Ivan", "Ivic", 2005, p);
+    insertBegin("Marko", "Maric", 2004, p);
+
+    insertEnd("Ana", "Anic", 2003, p);
+
+    printf("Lista osoba:\n");
+    printList(p);
+
+    pronadena = findlName("Ivic", p);
+
+    if (pronadena != NULL) {
+        printf("\nPronadena osoba: %s %s, %d\n",
+               pronadena->ime,
+               pronadena->prezime,
+               pronadena->god);
+    } else {
+        printf("\nOsoba nije pronadena.\n");
+    }
+
+    if (deletePerson("Maric", p) == 0) {
+        printf("\nOsoba je obrisana.\n");
+    } else {
+        printf("\nOsoba nije pronadena za brisanje.\n");
+    }
+
+    printf("\nLista nakon brisanja:\n");
+    printList(p);
+
+    while (p->next != NULL) {
+        Position temp = p->next;
+        p->next = temp->next;
+        free(temp);
+    }
+
+    return 0;
+}
 
